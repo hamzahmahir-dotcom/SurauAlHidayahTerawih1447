@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jadual Ramadan 1447H / 2026</title>
+  <style>
+    :root{
+      --bg:#ffffff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --head:#f8fafc; --hover:#f9fafb; --brand:#0ea5e9;
+      --chip-bg:#eef9ff; --chip-fg:#055e8a;
+    }
+    body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;margin:20px;background:var(--bg);color:var(--text);line-height:1.45}
+    h1{font-size:1.25rem;margin:0 0 .75rem 0}
+
+    /* Toolbar */
+    .toolbar{display:grid;gap:10px;grid-template-columns:repeat(4,minmax(180px,1fr));align-items:end;background:#fafafa;border:1px solid var(--border);padding:12px;border-radius:12px;margin-bottom:12px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    label{font-size:.9rem;color:var(--muted)}
+    input[type="text"],input[type="date"],select{padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:.95rem;background:#fff}
+    .btns{display:flex;gap:8px;flex-wrap:wrap}
+    button{padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.95rem}
+    button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+    @media (max-width: 1024px){.toolbar{grid-template-columns:1fr 1fr}}
+    @media (max-width: 520px){.toolbar{grid-template-columns:1fr}}
+
+    /* Meta */
+    .meta{display:flex;gap:12px;align-items:center;margin:10px 0;color:var(--muted);flex-wrap:wrap}
+    .chip{background:#f1f5f9;padding:2px 8px;border-radius:999px}
+
+    /* Table */
+    .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:#fff}
+    table{width:100%;border-collapse:collapse;min-width:700px}
+    thead th{position:sticky;top:0;background:var(--head);text-align:left;padding:12px;font-weight:600;border-bottom:2px solid var(--border);white-space:nowrap}
+    tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:top}
+    tbody tr:hover{background:var(--hover)}
+
+    /* Mobile: card view */
+    @media (max-width:680px){
+      table,thead,tbody,th,td,tr{display:block}
+      thead{position:absolute;left:-9999px;top:-9999px}
+      table{min-width:0}
+      .table-wrap{border:none}
+      tbody tr{background:#fff;border:1px solid var(--border);border-radius:12px;margin:0 0 12px 0;padding:10px 12px}
+      tbody td{display:grid;grid-template-columns:140px 1fr;gap:10px;border:0;padding:8px 0}
+      tbody td::before{content:attr(data-label);font-weight:600;color:var(--muted)}
+      tbody tr>td:first-child{padding-top:2px}
+      tbody tr>td:last-child{padding-bottom:2px}
+    }
+
+    /* Chips */
+    .imam-chip{background:var(--chip-bg);color:var(--chip-fg);padding:4px 8px;border-radius:999px;display:inline-block;font-size:.9rem}
+    .imam-nordin{background:#fff4ec;color:#8a3f05}
+    .imam-saiful{background:#f1f7ef;color:#2d5c16}
+    .bilal-chip{background:#eef2ff;color:#3730a3;padding:4px 8px;border-radius:999px;display:inline-block;font-size:.9rem}
+
+    /* Print */
+    @media print{
+      body{margin:0}
+      .toolbar,.meta{display:none}
+      .table-wrap{border:0}
+      table{min-width:0}
+      thead th{position:static}
+    }
+  </style>
+</head>
+<body>
+  <h1>Surau Al-Hidayah Apartment Saujana<br/>Jadual Imam & Bilal  Terawih — Ramadan 1447 / 2026</h1>
+  
+
+  <!-- Kawalan -->
+  <div class="toolbar" role="region" aria-label="Kawalan carian dan penapis">
+    <div class="field">
+      <label for="search">Carian (semua lajur)</label>
+      <input type="text" id="search" placeholder="Contoh: Hamzah, Yamin, Rabu, 18/2/2026, 10 Ramadan..." />
+    </div>
+
+    <div class="field">
+      <label for="hari">Hari (Isnin–Ahad)</label>
+      <select id="hari"><option value="">— Semua Hari —</option></select>
+    </div>
+
+    <div class="field">
+      <label for="imam">Imam Terawih</label>
+      <select id="imam"><option value="">— Semua Imam —</option></select>
+    </div>
+
+    <div class="field">
+      <label for="bilal">Bilal</label>
+      <select id="bilal"><option value="">— Semua Bilal —</option></select>
+    </div>
+
+    <div class="field">
+      <label>Julat Tarikh</label>
+      <div style="display:flex;gap:8px">
+        <input type="date" id="startDate" aria-label="Tarikh mula">
+        <input type="date" id="endDate" aria-label="Tarikh akhir">
+      </div>
+    </div>
+
+    <div class="btns" style="grid-column:1/-1">
+      <button class="primary" id="apply">Tapis</button>
+      <button id="reset">Set Semula</button>
+      <button id="print">Cetak / Simpan PDF</button>
+    </div>
+  </div>
+
+  <!-- Meta -->
+  <div class="meta">
+    <div class="chip"><span id="count">0</span> rekod dipaparkan</div>
+    <div>Jumlah asal: <strong id="total">0</strong></div>
+  </div>
+
+  <!-- Jadual -->
+  <div class="table-wrap">
+    <table aria-label="Jadual imam terawih dan bilal Ramadan 2026">
+      <thead>
+        <tr>
+          <th scope="col">Maghrib</th>
+          <th scope="col">Tarikh</th>
+          <th scope="col">Hari</th>
+          <th scope="col">Imam Terawih</th>
+          <th scope="col">Bilal</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // --------- Data dari jadual terkini ---------
+    const rows = [
+      ["1 Ramadan","18/2/2026","Rabu","Imam Hamzah","En. Rahman"],
+      ["2 Ramadan","19/2/2026","Khamis","Imam Hamzah","En. Yamin"],
+      ["3 Ramadan","20/2/2026","Jumaat","Imam Hamzah","En. Rahman"],
+      ["4 Ramadan","21/2/2026","Sabtu","Imam Hj. Nordin","En. Yamin"],
+      ["5 Ramadan","22/2/2026","Ahad","Imam Hamzah","En. Rahman"],
+      ["6 Ramadan","23/2/2026","Isnin","Ustaz Saiful Azhar","En. Yamin"],
+      ["7 Ramadan","24/2/2026","Selasa","Ustaz Saiful Azhar","En. Rahman"],
+      ["8 Ramadan","25/2/2026","Rabu","Ustaz Saiful Azhar","En. Yamin"],
+      ["9 Ramadan","26/2/2026","Khamis","Imam Hamzah","En. Rahman"],
+      ["10 Ramadan","27/2/2026","Jumaat","Imam Hamzah","En. Yamin"],
+      ["11 Ramadan","28/2/2026","Sabtu","Imam Hamzah","En. Rahman"],
+      ["12 Ramadan","1/3/2026","Ahad","Imam Hj. Nordin","En. Yamin"],
+      ["13 Ramadan","2/3/2026","Isnin","Ustaz Saiful Azhar","En. Rahman"],
+      ["14 Ramadan","3/3/2026","Selasa","Ustaz Saiful Azhar","En. Yamin"],
+      ["15 Ramadan","4/3/2026","Rabu","Ustaz Saiful Azhar","En. Rahman"],
+      ["16 Ramadan","5/3/2026","Khamis","Imam Hj. Nordin","En. Yamin"],
+      ["17 Ramadan","6/3/2026","Jumaat","Imam Hamzah","En. Rahman"],
+      ["18 Ramadan","7/3/2026","Sabtu","Imam Hamzah","En. Yamin"],
+      ["19 Ramadan","8/3/2026","Ahad","Imam Hamzah","En. Rahman"],
+      ["20 Ramadan","9/3/2026","Isnin","Imam Hj. Nordin","En. Yamin"],
+      ["21 Ramadan","10/3/2026","Selasa","Ustaz Saiful Azhar","En. Rahman"],
+      ["22 Ramadan","11/3/2026","Rabu","Ustaz Saiful Azhar","En. Yamin"],
+      ["23 Ramadan","12/3/2026","Khamis","Ustaz Saiful Azhar","En. Rahman"],
+      ["24 Ramadan","13/3/2026","Jumaat","Imam Hj. Nordin","En. Yamin"],
+      ["25 Ramadan","14/3/2026","Sabtu","Imam Hamzah","En. Rahman"],
+      ["26 Ramadan","15/3/2026","Ahad","Imam Hamzah","En. Yamin"],
+      ["27 Ramadan","16/3/2026","Isnin","Imam Hamzah","En. Rahman"],
+      ["28 Ramadan","17/3/2026","Selasa","Imam Hj. Nordin","En. Yamin"],
+      ["29 Ramadan","18/3/2026","Rabu","Ustaz Saiful Azhar","En. Rahman"],
+      ["30 Ramadan","19/3/2026","Khamis","Ustaz Saiful Azhar","En. Yamin"],
+    ];
+
+    // --------- Elemen UI ---------
+    const tbody = document.getElementById("tbody");
+    const countEl = document.getElementById("count");
+    const totalEl = document.getElementById("total");
+    const searchInput = document.getElementById("search");
+    const hariSel = document.getElementById("hari");
+    const imamSel = document.getElementById("imam");
+    const bilalSel = document.getElementById("bilal");
+    const startDate = document.getElementById("startDate");
+    const endDate = document.getElementById("endDate");
+    const applyBtn = document.getElementById("apply");
+    const resetBtn = document.getElementById("reset");
+    const printBtn = document.getElementById("print");
+
+    // --------- Utiliti ---------
+    function escapeHtml(s){
+      return String(s).replace(/[&<>\"']/g, m => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      })[m]);
+    }
+    function unique(list,idx){return Array.from(new Set(list.map(r=>r[idx])));}
+    function ddmmyyyyToISO(s){
+      // "D/M/YYYY" atau "DD/MM/YYYY" -> "YYYY-MM-DD"
+      const [d,m,y]=s.split('/').map(x=>parseInt(x,10));
+      const mm=String(m).padStart(2,'0');
+      const dd=String(d).padStart(2,'0');
+      return `${y}-${mm}-${dd}`;
+    }
+    function imamClass(name){
+      if(/nordin/i.test(name)) return 'imam-chip imam-nordin';
+      if(/saiful/i.test(name)) return 'imam-chip imam-saiful';
+      return 'imam-chip';
+    }
+
+    // --------- Render ---------
+    function renderTable(data){
+      const html = data.map(r=>{
+        const [maghrib, tarikh, hari, imam, bilal] = r.map(escapeHtml);
+        return `<tr>
+          <td data-label="Maghrib">${maghrib}</td>
+          <td data-label="Tarikh">${tarikh}</td>
+          <td data-label="Hari">${hari}</td>
+          <td data-label="Imam Terawih"><span class="${imamClass(imam)}">${imam}</span></td>
+          <td data-label="Bilal"><span class="bilal-chip">${bilal}</span></td>
+        </tr>`;
+      }).join('');
+      tbody.innerHTML = html;
+      countEl.textContent = data.length;
+    }
+
+    // --------- Penapis ---------
+    function applyFilters(){
+      const q = searchInput.value.trim().toLowerCase();
+      const hariVal = hariSel.value;
+      const imamVal = imamSel.value;
+      const bilalVal = bilalSel.value;
+      const startISO = startDate.value || null;
+      const endISO = endDate.value || null;
+
+      const filtered = rows.filter(([maghrib, tarikh, hari, imam, bilal])=>{
+        if(q){
+          const joined = (maghrib+' '+tarikh+' '+hari+' '+imam+' '+bilal).toLowerCase();
+          if(!joined.includes(q)) return false;
+        }
+        if(hariVal && hari !== hariVal) return false;
+        if(imamVal && imam !== imamVal) return false;
+        if(bilalVal && bilal !== bilalVal) return false;
+
+        if(startISO || endISO){
+          const iso = ddmmyyyyToISO(tarikh);
+          if(startISO && iso < startISO) return false;
+          if(endISO && iso > endISO) return false;
+        }
+        return true;
+      });
+
+      renderTable(filtered);
+    }
+
+    function resetFilters(){
+      searchInput.value = '';
+      hariSel.value = '';
+      imamSel.value = '';
+      bilalSel.value = '';
+      startDate.value = '';
+      endDate.value = '';
+      renderTable(rows);
+    }
+
+    function initFilters(){
+      const hariList = unique(rows,2).sort((a,b)=>a.localeCompare(b,'ms'));
+      const imamList = unique(rows,3).sort((a,b)=>a.localeCompare(b,'ms'));
+      const bilalList = unique(rows,4).sort((a,b)=>a.localeCompare(b,'ms'));
+
+      for(const h of hariList){ const o=document.createElement('option'); o.value=h; o.textContent=h; hariSel.appendChild(o); }
+      for(const i of imamList){ const o=document.createElement('option'); o.value=i; o.textContent=i; imamSel.appendChild(o); }
+      for(const b of bilalList){ const o=document.createElement('option'); o.value=b; o.textContent=b; bilalSel.appendChild(o); }
+    }
+
+    // Events
+    searchInput.addEventListener('input', applyFilters);
+    hariSel.addEventListener('change', applyFilters);
+    imamSel.addEventListener('change', applyFilters);
+    bilalSel.addEventListener('change', applyFilters);
+    startDate.addEventListener('change', applyFilters);
+    endDate.addEventListener('change', applyFilters);
+    applyBtn.addEventListener('click', applyFilters);
+    resetBtn.addEventListener('click', resetFilters);
+    printBtn.addEventListener('click', ()=> window.print());
+
+    // Boot
+    totalEl.textContent = rows.length;
+    initFilters();
+    renderTable(rows);
+  </script>
+</body>
+</html>
